@@ -12,6 +12,9 @@
 		C5B9FD371D46A0B200EC0E90 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5B9FD351D46A0B200EC0E90 /* Main.storyboard */; };
 		C5B9FD391D46A0B200EC0E90 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5B9FD381D46A0B200EC0E90 /* Assets.xcassets */; };
 		C5B9FD3C1D46A0B200EC0E90 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5B9FD3A1D46A0B200EC0E90 /* LaunchScreen.storyboard */; };
+		C5B9FD491D46A0CA00EC0E90 /* ResourceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B9FD441D46A0CA00EC0E90 /* ResourceViewController.swift */; };
+		C5B9FD4A1D46A0CA00EC0E90 /* RCChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = C5B9FD461D46A0CA00EC0E90 /* RCChartView.m */; };
+		C5B9FD4B1D46A0CA00EC0E90 /* RCChartViewPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = C5B9FD481D46A0CA00EC0E90 /* RCChartViewPlot.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +25,12 @@
 		C5B9FD381D46A0B200EC0E90 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C5B9FD3B1D46A0B200EC0E90 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C5B9FD3D1D46A0B200EC0E90 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C5B9FD431D46A0C900EC0E90 /* ResourceViewController-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ResourceViewController-Bridging-Header.h"; sourceTree = "<group>"; };
+		C5B9FD441D46A0CA00EC0E90 /* ResourceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResourceViewController.swift; sourceTree = "<group>"; };
+		C5B9FD451D46A0CA00EC0E90 /* RCChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCChartView.h; sourceTree = "<group>"; };
+		C5B9FD461D46A0CA00EC0E90 /* RCChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCChartView.m; sourceTree = "<group>"; };
+		C5B9FD471D46A0CA00EC0E90 /* RCChartViewPlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCChartViewPlot.h; sourceTree = "<group>"; };
+		C5B9FD481D46A0CA00EC0E90 /* RCChartViewPlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCChartViewPlot.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,14 +63,28 @@
 		C5B9FD301D46A0B200EC0E90 /* ResourceViewController */ = {
 			isa = PBXGroup;
 			children = (
+				C5B9FD4C1D46A0E200EC0E90 /* ResourceViewController */,
 				C5B9FD311D46A0B200EC0E90 /* AppDelegate.swift */,
 				C5B9FD331D46A0B200EC0E90 /* ViewController.swift */,
 				C5B9FD351D46A0B200EC0E90 /* Main.storyboard */,
 				C5B9FD381D46A0B200EC0E90 /* Assets.xcassets */,
 				C5B9FD3A1D46A0B200EC0E90 /* LaunchScreen.storyboard */,
 				C5B9FD3D1D46A0B200EC0E90 /* Info.plist */,
+				C5B9FD431D46A0C900EC0E90 /* ResourceViewController-Bridging-Header.h */,
 			);
 			path = ResourceViewController;
+			sourceTree = "<group>";
+		};
+		C5B9FD4C1D46A0E200EC0E90 /* ResourceViewController */ = {
+			isa = PBXGroup;
+			children = (
+				C5B9FD441D46A0CA00EC0E90 /* ResourceViewController.swift */,
+				C5B9FD451D46A0CA00EC0E90 /* RCChartView.h */,
+				C5B9FD461D46A0CA00EC0E90 /* RCChartView.m */,
+				C5B9FD471D46A0CA00EC0E90 /* RCChartViewPlot.h */,
+				C5B9FD481D46A0CA00EC0E90 /* RCChartViewPlot.m */,
+			);
+			name = ResourceViewController;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -136,7 +159,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				C5B9FD341D46A0B200EC0E90 /* ViewController.swift in Sources */,
+				C5B9FD4B1D46A0CA00EC0E90 /* RCChartViewPlot.m in Sources */,
 				C5B9FD321D46A0B200EC0E90 /* AppDelegate.swift in Sources */,
+				C5B9FD4A1D46A0CA00EC0E90 /* RCChartView.m in Sources */,
+				C5B9FD491D46A0CA00EC0E90 /* ResourceViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,10 +277,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = ResourceViewController/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rigil.ResourceViewController;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "ResourceViewController/ResourceViewController-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -262,10 +291,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = ResourceViewController/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rigil.ResourceViewController;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "ResourceViewController/ResourceViewController-Bridging-Header.h";
 			};
 			name = Release;
 		};
