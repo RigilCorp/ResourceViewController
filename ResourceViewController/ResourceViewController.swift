@@ -14,48 +14,33 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     
     private var pageCont: UIPageControl?
     
+    //Bar chart view and properties
     private var barChartPageView : UIView?
-    
-    private var  propertiesPageView : UIView?
-    
-    private var linksPageView : UIView?
-    
     private var yAxisLabelsContainerView : UIView?
-    
     private var chart : RCChartView?
-    
-    private var plots : [RCChartViewPlot]?
-    
-    private var propertiesTableView : UITableView?
-    
-    private var linksTableView : UITableView?
-    
     private var legendTableView : UITableView?
-    
     private var totalValues : [CGFloat]?
-    
     private var totalTitles : [String]?
-    
     private var chartColors : [UIColor]?
-    
-    private var links : [NSDictionary]?
-    
-    private var properties : [NSDictionary]?
-    
-    private var propertyTitles : [String]?
-    
-    private var propertyValues : [String]?
-    
-    private var linkTitles : [String]?
-    
-    private var linkDescriptions : [String]?
-    
+    private var plots : [RCChartViewPlot]?
     private var maskLayer : CAGradientLayer?
-    
     private var gradientView : UIView?
-    
     private let defaultColors = [UIColor(red: 90.0/255.0, green: 200.0/255.0, blue: 250/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 204.0/255.0, blue: 0/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 149.0/255.0, blue: 0.0/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 45.0/255.0, blue: 85.0/255.0, alpha: 1.0), UIColor(red: 0.0/255.0, green: 122.0/255.0, blue: 255.0/255.0, alpha: 1.0), UIColor(red: 76.0/255.0, green: 217.0/255.0, blue: 100.0/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 59.0/255.0, blue: 48.0/255.0, alpha: 1.0)]
     
+    //Properties view and properties
+    private var  propertiesPageView : UIView?
+    private var propertiesTableView : UITableView?
+    private var properties : [NSDictionary]?
+    private var propertyTitles : [String]?
+    private var propertyValues : [String]?
+    
+    //Links view and properties
+    private var linksPageView : UIView?
+    private var linksTableView : UITableView?
+    private var links : [NSDictionary]?
+    private var linkTitles : [String]?
+    private var linkDescriptions : [String]?
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         
