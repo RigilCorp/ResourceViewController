@@ -12,7 +12,7 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
 
     private var pageScrollView: UIScrollView?
     
-    private var pageCont: UIPageControl?
+    private var pageControl: UIPageControl?
     
     //Bar chart view and properties
     private var barChartPageView : UIView?
@@ -28,7 +28,7 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     private let defaultColors = [UIColor(red: 90.0/255.0, green: 200.0/255.0, blue: 250/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 204.0/255.0, blue: 0/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 149.0/255.0, blue: 0.0/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 45.0/255.0, blue: 85.0/255.0, alpha: 1.0), UIColor(red: 0.0/255.0, green: 122.0/255.0, blue: 255.0/255.0, alpha: 1.0), UIColor(red: 76.0/255.0, green: 217.0/255.0, blue: 100.0/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 59.0/255.0, blue: 48.0/255.0, alpha: 1.0)]
     
     //Properties view and properties
-    private var  propertiesPageView : UIView?
+    private var propertiesPageView : UIView?
     private var propertiesTableView : UITableView?
     private var properties : [NSDictionary]?
     private var propertyTitles : [String]?
@@ -44,30 +44,32 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.edgesForExtendedLayout = UIRectEdge.None;
+        
         self.view.backgroundColor = UIColor.whiteColor()
         
         //Set up scrollView
-        pageScrollView = UIScrollView(frame: CGRectMake(0.0, 0.0, CGRectGetMaxX(self.view.frame), CGRectGetMaxY(self.view.frame) - 50.0))
-
+        pageScrollView = UIScrollView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame) - 50.0))
         self.view.addSubview(pageScrollView!)
-        pageScrollView!.contentSize = CGSizeMake(CGRectGetWidth(pageScrollView!.frame) * 3, CGRectGetHeight(pageScrollView!.frame))
         pageScrollView!.pagingEnabled = true
-        pageScrollView!.autoresizingMask = [UIViewAutoresizing.FlexibleWidth,  UIViewAutoresizing.FlexibleHeight]
+        pageScrollView!.autoresizingMask = [.FlexibleWidth,  .FlexibleHeight]
         pageScrollView!.delegate = self
-        pageScrollView?.showsVerticalScrollIndicator = false
-        pageScrollView?.showsHorizontalScrollIndicator = false
         pageScrollView?.canCancelContentTouches = false
-        pageCont = UIPageControl(frame: CGRectMake(0.0, CGRectGetHeight(self.view.frame) - 50.0, 50.0, 30.0))
-        pageCont?.center = CGPointMake(CGRectGetWidth(self.view.frame) / 2.0, pageCont!.center.y)
+        pageScrollView?.backgroundColor = UIColor.purpleColor()
         
-        pageCont?.numberOfPages = 3
-        pageCont?.currentPage = 0
-        pageCont?.currentPageIndicatorTintColor = UIColor.blackColor()
-        pageCont?.pageIndicatorTintColor = UIColor.lightGrayColor()
-        self.view.addSubview(pageCont!)
+        pageControl = UIPageControl(frame: CGRectMake(0.0, CGRectGetHeight(self.view.frame) - 50.0, 50.0, 30.0))
+        pageControl?.center = CGPointMake(CGRectGetWidth(self.view.frame) / 2.0, pageControl!.center.y)
+        pageControl?.numberOfPages = 3
+        pageControl?.currentPage = 0
+        pageControl?.currentPageIndicatorTintColor = UIColor.blackColor()
+        pageControl?.pageIndicatorTintColor = UIColor.lightGrayColor()
+        pageControl?.autoresizingMask = [.FlexibleTopMargin, .FlexibleRightMargin, .FlexibleLeftMargin]
+        self.view.addSubview(pageControl!)
         
         //Create and add the barchartPageView to the scrollview which is going to be on the first page
-        barChartPageView = UIView.init(frame: CGRectMake(0.0, 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
+        barChartPageView = UIView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
+        barChartPageView?.backgroundColor = UIColor(colorLiteralRed: 0, green: 1, blue: 0, alpha: 0.5)
+        barChartPageView?.autoresizingMask = [.FlexibleRightMargin, .FlexibleWidth, .FlexibleHeight]
         
         legendTableView = UITableView.init(frame: CGRectMake(CGRectGetMaxX(self.view.frame) - (CGRectGetMaxX(self.view.frame) / 4.0) - 20.0, 100.0, CGRectGetMaxX(self.view.frame) / 4.0, CGRectGetMaxY(self.view.frame)), style: .Grouped)
         
@@ -75,12 +77,16 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         
         
         //Create and add the propertiesPageView to the scrollview which is going to be on the second page
-        propertiesPageView = UIView.init(frame: CGRectMake(CGRectGetMaxX(pageScrollView!.frame), 0.0, CGRectGetMaxY(self.view.frame) - 200.0, CGRectGetHeight(pageScrollView!.frame)))
+        propertiesPageView = UIView(frame: CGRectMake(CGRectGetWidth(pageScrollView!.frame), 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
+        propertiesPageView?.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
+        propertiesPageView?.backgroundColor = UIColor(colorLiteralRed: 1, green: 0, blue: 0, alpha: 0.5)
         
-        propertiesTableView = UITableView.init(frame: CGRectMake(100.0, 0.0, CGRectGetWidth((propertiesPageView?.frame)!) - 100.0, CGRectGetHeight((propertiesPageView?.frame)!)), style: UITableViewStyle.Plain)
+        propertiesTableView = UITableView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth((propertiesPageView?.frame)!), CGRectGetHeight(propertiesPageView!.frame)), style: UITableViewStyle.Plain)
         propertiesTableView?.dataSource = self
         propertiesTableView?.delegate = self
         propertiesTableView?.cellLayoutMarginsFollowReadableWidth = false
+        propertiesTableView?.backgroundColor = UIColor(colorLiteralRed: 0.5, green: 0.5, blue: 0, alpha: 0.5)
+        propertiesTableView?.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
 
         //Add propertiesTableView to propertiesPageView
         propertiesPageView!.addSubview(propertiesTableView!)
@@ -90,11 +96,14 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         
         
         //Create and add the linksPageView to the scrollview which is going to be on the third page
-        linksPageView = UIView.init(frame: CGRectMake(CGRectGetMaxX(pageScrollView!.frame) * 2, 0.0, CGRectGetWidth(self.view.frame), CGRectGetHeight(pageScrollView!.frame)))
-        linksTableView = UITableView.init(frame: CGRectMake(0.0, 0.0, CGRectGetWidth((linksPageView?.frame)!), CGRectGetHeight((linksPageView?.frame)!)), style: UITableViewStyle.Plain)
+        linksPageView = UIView(frame: CGRectMake(CGRectGetWidth(pageScrollView!.frame) * 2, 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
+        linksPageView?.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
+        linksTableView = UITableView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth((linksPageView?.frame)!), CGRectGetHeight((linksPageView?.frame)!)), style: UITableViewStyle.Plain)
         linksTableView?.dataSource = self
         linksTableView?.delegate = self
         linksTableView?.cellLayoutMarginsFollowReadableWidth = false
+        linksTableView?.backgroundColor = UIColor(colorLiteralRed: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+        linksTableView?.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
         
         //Add linkTableView to linkPageView
         linksPageView!.addSubview(linksTableView!)
@@ -102,42 +111,41 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         //Add linkPageView to pageScrollView so that it is place on the second page
         pageScrollView!.addSubview(linksPageView!)
         
+        print("scroll view \(pageScrollView?.frame)")
+        print("first page \(barChartPageView?.frame)")
+        print("second page \(propertiesPageView?.frame)")
+        print("third page \(linksPageView?.frame)")
+        print("content view \(pageScrollView?.contentSize))")
     }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         
-        var minXForPropertiesPage  = CGFloat(0.0)
-        var minXForLinksPage = CGFloat(0.0)
+        pageScrollView!.contentSize = CGSizeMake(CGRectGetWidth(pageScrollView!.frame) * 3, CGRectGetHeight(pageScrollView!.frame)-64)
+    }
+    
+    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        print("size \(size)")
+        pageScrollView!.contentSize = CGSize(width: size.width*3.0, height: size.height-50.0)//CGSizeMake(CGRectGetWidth(pageScrollView!.frame) * 3, CGRectGetHeight(pageScrollView!.frame)-64)
+        print("scroll view \(pageScrollView?.frame)")
+        print("first page \(barChartPageView?.frame)")
+        print("second page \(propertiesPageView?.frame)")
+        print("third page \(linksPageView?.frame)")
+        print("content view \(pageScrollView?.contentSize))")
+        print("self view \(self.view.frame))")
         
-        if UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.Portrait || UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.PortraitUpsideDown {
-            minXForPropertiesPage = CGRectGetMaxY(self.view.frame)
-            minXForLinksPage = CGRectGetMaxY(self.view!.frame) * 2
+        if size.width >= size.height {
+            //setup for landscape
             
-        } else if UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.LandscapeLeft || UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.LandscapeRight {
-            minXForPropertiesPage = CGRectGetMaxX(self.view.frame)
-            minXForLinksPage = CGRectGetMaxX(self.view.frame) * 2
-        }
-        //Setup views that act as pages in the scrollview
-        pageScrollView!.frame = CGRectMake(0.0, 65.0, minXForPropertiesPage, CGRectGetMaxY(self.view.frame) - 65.0)
-        barChartPageView!.frame = CGRectMake(0.0, 0.0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.pageScrollView!.frame))
-        propertiesPageView?.frame = CGRectMake(minXForPropertiesPage, 0.0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame))
-        propertiesTableView?.frame = CGRectMake(20.0, 0.0, CGRectGetWidth(self.view.frame) - 40.0, CGRectGetHeight(self.view.frame))
-        linksPageView?.frame = CGRectMake(minXForLinksPage, 0.0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame))
-        linksTableView?.frame = CGRectMake(20.0, 0.0, CGRectGetWidth(self.view.frame) - 40.0, CGRectGetHeight((linksPageView?.frame)!))
-        pageScrollView!.contentSize = CGSizeMake(CGRectGetWidth(pageScrollView!.frame) * 3, CGRectGetHeight(pageScrollView!.frame))
-
-        if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.Phone && (UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.LandscapeRight || UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.LandscapeLeft) {
-            print("iPhone")
-
-            self.pageCont?.frame = CGRectMake(0.0, CGRectGetHeight(self.view.frame) - 25.0, 50.0, 30.0)
-            self.pageCont?.center = CGPointMake(CGRectGetMaxX(self.view.frame) / 2.0, self.pageCont!.center.y)
+            
         } else {
-            self.pageCont?.frame = CGRectMake(0.0, CGRectGetHeight(self.view.frame) - 50.0, 50.0, 30.0)
-            self.pageCont?.center = CGPointMake(CGRectGetMaxX(self.view.frame) / 2.0, self.pageCont!.center.y)
+            //setup for portrait
+            self.legendTableView?.frame = CGRectMake(size.width / 2.0 - 20.0 , 20.0, size.width / 2.0, (size.height-50)/3.0)
+            self.chart?.frame = CGRectMake(150.0, (size.height-50.0) / 2.0, size.width-250.0, ((size.height-50.0) / 2.0) - 70.0)
+            self.yAxisLabelsContainerView!.frame = CGRectMake(CGRectGetMinX(self.chart!.frame) - 75.0, CGRectGetMinY(self.chart!.frame) - 30.0, 100.0,  CGRectGetHeight(self.chart!.frame))
+            
         }
-        
-        
+
     }
     
     override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
@@ -147,36 +155,24 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             
             var pagesWidth = CGFloat(0.0)
             let pagesHeight = CGRectGetWidth(self.view.frame) - 65.0
-            let tablesWidth = CGRectGetHeight(self.view.frame)
             
             if toInterfaceOrientation.isPortrait {
                 pagesWidth = CGRectGetWidth(self.view.frame)
                 
                 
                 if UIUserInterfaceIdiom.Pad == UI_USER_INTERFACE_IDIOM() {
-                    self.pageScrollView?.frame = CGRectMake(0.0, 65.0, pagesWidth * 1.25 , CGRectGetHeight(self.view.frame))
+                    self.pageScrollView?.frame = CGRectMake(0.0, 0, pagesWidth * 1.25 , CGRectGetHeight(self.view.frame))
                 } else if UIUserInterfaceIdiom.Phone == UI_USER_INTERFACE_IDIOM() {
-                    self.pageScrollView?.frame = CGRectMake(0.0, 65.0, pagesWidth * 1.45 , CGRectGetHeight(self.view.frame))
+                    self.pageScrollView?.frame = CGRectMake(0.0, 0, pagesWidth * 1.45 , CGRectGetHeight(self.view.frame))
                 }
                 
             } else if toInterfaceOrientation.isLandscape {
                 pagesWidth = CGRectGetHeight(self.view.frame)
-                self.pageScrollView?.frame = CGRectMake(0.0, 65.0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame) - 65.0)
+                self.pageScrollView?.frame = CGRectMake(0.0, 0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame) - 65.0)
             }
             
-            
-            
-            self.barChartPageView!.frame = CGRectMake( 0.0, 0.0, tablesWidth, pagesHeight)
-            self.propertiesPageView!.frame = CGRectMake(pagesWidth, 0.0, tablesWidth, pagesHeight)
-            self.propertiesTableView?.frame = CGRectMake(20.0, 0.0, tablesWidth - 40.0, pagesHeight)
-            
-            self.linksPageView!.frame = CGRectMake( pagesWidth * 2.0 , 0.0, tablesWidth, pagesHeight)
-            self.linksTableView?.frame = CGRectMake(20.0, 0.0, tablesWidth - 40.0, pagesHeight)
-            
-            self.pageCont?.center = CGPointMake(self.view.center.x, CGRectGetWidth(self.view.frame) - 50.0)
-            
             pageScrollView?.contentSize = CGSizeMake(pagesWidth * 3 + 20.0, pagesHeight)
-            pageScrollView?.contentOffset.x = CGFloat((pageCont?.currentPage)!) * CGFloat(pagesWidth)
+            pageScrollView?.contentOffset.x = CGFloat((pageControl?.currentPage)!) * CGFloat(pagesWidth)
             
             
             if toInterfaceOrientation.isPortrait {
@@ -227,7 +223,6 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
                         self.yAxisLabelsContainerView!.frame = CGRectMake(0.0, CGRectGetMinY(self.chart!.frame), 100.0,  CGRectGetHeight(self.chart!.frame))
                         
                     })
-                    self.pageCont?.center = CGPointMake(self.view.center.x, CGRectGetWidth(self.view.frame) - 15.0)
                 }
             }
             
@@ -413,10 +408,12 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.Pad {
             
             if UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.Portrait || UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.PortraitUpsideDown {
-                chart = RCChartView.init(frame: CGRectMake(150.0, CGRectGetWidth(self.view.frame) / 2.0, CGRectGetMaxY(barChartPageView!.frame) / 2.0, CGRectGetMaxX(barChartPageView!.frame) / 2.0), style: RCChartStyleBar)
+                chart = RCChartView(frame: CGRectMake(150.0, CGRectGetWidth(self.view.frame) / 2.0, CGRectGetMaxY(barChartPageView!.frame) / 2.0, CGRectGetMaxX(barChartPageView!.frame) / 2.0), style: RCChartStyleBar)
+                chart?.backgroundColor = UIColor.redColor()
             } else if UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.LandscapeLeft || UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.LandscapeRight {
                 
-                chart = RCChartView.init(frame: CGRectMake(150.0, 50.0, CGRectGetMaxX(barChartPageView!.frame) / 2.0, CGRectGetMaxY(barChartPageView!.frame) / 2.0), style: RCChartStyleBar)
+                chart = RCChartView(frame: CGRectMake(150.0, 50.0, CGRectGetMaxX(barChartPageView!.frame) / 2.0, CGRectGetMaxY(barChartPageView!.frame) / 2.0), style: RCChartStyleBar)
+                chart?.backgroundColor = UIColor.redColor()
                 chart!.center = CGPointMake((chart?.center.x)!, (self.view!.center.y) - 50.0)
             }
             
@@ -425,10 +422,13 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             
             if UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.Portrait || UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.PortraitUpsideDown {
                 
-                chart = RCChartView.init(frame: CGRectMake(75.0, (CGRectGetHeight(self.barChartPageView!.frame) / 2.5), CGRectGetWidth(self.view.frame) * 2.0 / 3.0, (CGRectGetHeight(barChartPageView!.frame) / 2.0 - 75.0)), style: RCChartStyleBar)
+                chart = RCChartView(frame: CGRectMake(75.0, (CGRectGetHeight(self.barChartPageView!.frame) / 2.5), CGRectGetWidth(self.view.frame) * 2.0 / 3.0, (CGRectGetHeight(barChartPageView!.frame) / 2.0 - 75.0)), style: RCChartStyleBar)
+                chart?.backgroundColor = UIColor.redColor()
+                
             } else if UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.LandscapeLeft || UIApplication.sharedApplication().statusBarOrientation == UIInterfaceOrientation.LandscapeRight {
                 
-                chart = RCChartView.init(frame: CGRectMake(100.0, 20.0, CGRectGetMaxY(barChartPageView!.frame) - 50.0, CGRectGetMaxY(self.view!.frame) * 2.0/3.0 - 25.0), style: RCChartStyleBar)
+                chart = RCChartView(frame: CGRectMake(100.0, 20.0, CGRectGetMaxY(barChartPageView!.frame) - 50.0, CGRectGetMaxY(self.view!.frame) * 2.0/3.0 - 25.0), style: RCChartStyleBar)
+                chart?.backgroundColor = UIColor.redColor()
             }
         }
         
@@ -500,7 +500,13 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         
         barChartPageView!.addSubview(chart!)
         chart!.reloadData()
-        
+        print("setup ------")
+        print("scroll view \(pageScrollView?.frame)")
+        print("first page \(barChartPageView?.frame)")
+        print("second page \(propertiesPageView?.frame)")
+        print("third page \(linksPageView?.frame)")
+        print("content view \(pageScrollView?.contentSize))")
+        print("self view \(self.view.frame))")
     }
     
     private func createLegendViewForTitlesAndValues(titles: [String], values:[CGFloat], colors:[UIColor]) {
@@ -625,16 +631,23 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     //MARK: - <UIScrollViewDelegate>
     func scrollViewDidScroll(scrollView: UIScrollView) {
         
+        print("scroll view \(pageScrollView?.frame)")
+        print("first page \(barChartPageView?.frame)")
+        print("second page \(propertiesPageView?.frame)")
+        print("third page \(linksPageView?.frame)")
+        print("content view \(pageScrollView?.contentSize))")
+        print("test a")
         if scrollView == pageScrollView! {
+            print("test b")
             
-            scrollView.contentOffset.y = 0.0
+//            scrollView.contentOffset.y = 0.0
             let pageNumberIndicator = scrollView.contentOffset.x / CGRectGetWidth(pageScrollView!.frame)
             if pageNumberIndicator == 0 {
-                pageCont!.currentPage = 0
+                pageControl!.currentPage = 0
             } else if pageNumberIndicator == 1 {
-                pageCont!.currentPage = 1
+                pageControl!.currentPage = 1
             } else if (pageNumberIndicator == 2) {
-                pageCont!.currentPage = 2
+                pageControl!.currentPage = 2
             }
         }
         
