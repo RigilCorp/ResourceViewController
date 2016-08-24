@@ -90,14 +90,14 @@
             //Get title from delegate method
             } else if ([dataSource respondsToSelector:@selector(titleForPlotAtIndex:)]) {
                 UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake([self cgpointForChartCoordinates:[dataSource pointForPlotWithIndex:i]].x - 10.0,
-                                                                                self.frame.size.height + 50.0,
+                                                                                self.frame.size.height + titlesWidth*(M_1_PI),
                                                                                 titlesWidth,
                                                                                 titlesHeight)];
                 titleLabel.text = [dataSource titleForPlotAtIndex:i];
                 titleLabel.font = titlesFont;
                 titleLabel.textColor = titlesColor;
                 titleLabel.textAlignment = titleTextAlignment;
-                titleLabel.numberOfLines = 1;
+                titleLabel.numberOfLines = 0;
                 titleLabel.transform = CGAffineTransformMakeRotation(M_PI_4);
                 [self addSubview:titleLabel];
             }
