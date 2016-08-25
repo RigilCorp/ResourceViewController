@@ -8,7 +8,13 @@
 
 import UIKit
 
-class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegate, UITableViewDataSource, RCChartViewDataSource {
+protocol ResourceLinksDataSource {
+    func resourceViewControllerNumberOfLinkSections(viewController: ResourceViewController) -> Int
+    func resourceViewController(viewController: ResourceViewController, numberOfRowsForLinkSection: Int) -> Int
+    func resourceViewController(viewController: ResourceViewController, collectionView: UICollectionView, cellForLinkAtPath indexPath: NSIndexPath) -> UICollectionViewCell
+}
+
+class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegate, UITableViewDataSource, RCChartViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate {
 
     private var pageScrollView: UIScrollView?
     
@@ -30,16 +36,18 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     //Properties view and properties
     private var propertiesPageView : UIView?
     private var propertiesTableView : UITableView?
-    private var properties : [NSDictionary]?
     private var propertyTitles : [String]?
     private var propertyValues : [String]?
     
     //Links view and properties
-    private var linksPageView : UIView?
-    private var linksTableView : UITableView?
-    private var links : [NSDictionary]?
-    private var linkTitles : [String]?
-    private var linkDescriptions : [String]?
+    private var linksPageView: UIView?
+    private var linksTableView: UITableView?
+    private var linkTitles: [String]?
+    private var linkDescriptions: [String]?
+    private var isLinksGridMode = false
+    private var linksCollectionView: UICollectionView?
+    private var linksFlowLayout = UICollectionViewFlowLayout()
+    var linksDataSource: ResourceLinksDataSource?
         
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -92,6 +100,7 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     
     func adjustForSize(size: CGSize) {
         pageScrollView!.contentSize = CGSize(width: size.width*3.0, height: size.height-30.0)
+        
         if size.width >= size.height {
             //setup for landscape
             var y = (size.height-30.0) - (size.height-30.0) / 3.0 * 2.0 - 100.0
@@ -114,6 +123,19 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         self.gradientView?.frame = self.legendTableView!.frame
         self.maskLayer.frame = gradientView!.bounds
         chart?.reloadData()
+        
+        if isLinksGridMode {
+            let numWide = floor(CGRectGetWidth(pageScrollView!.frame)/300)
+            let cellWidth = CGRectGetWidth(pageScrollView!.frame)/numWide - 10.0
+            linksFlowLayout.itemSize = CGSize(width: cellWidth, height: cellWidth)
+            linksFlowLayout.sectionInset = UIEdgeInsetsMake(10.0, 5.0, 5.0, 5.0)
+            linksFlowLayout.minimumInteritemSpacing = 5.0
+            linksFlowLayout.headerReferenceSize = CGSize(width: CGRectGetWidth(pageScrollView!.frame), height: 44.0)
+            linksFlowLayout.minimumLineSpacing = 5.0
+            linksCollectionView?.reloadData()
+        }
+        
+        pageScrollView?.setContentOffset(CGPoint(x: CGFloat(pageControl!.currentPage) * CGRectGetWidth(pageScrollView!.frame), y: 0), animated: true)
     }
     
     //MARK: - Public
@@ -148,6 +170,37 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             pageControl?.numberOfPages = 0
         }
         
+    }
+    
+    func toggleLinksDisplay() {
+        isLinksGridMode = !isLinksGridMode
+        
+        if isLinksGridMode {
+            
+            let numWide = floor(CGRectGetWidth(pageScrollView!.frame)/300)
+            let cellWidth = CGRectGetWidth(pageScrollView!.frame)/numWide - 10.0
+            linksFlowLayout.itemSize = CGSize(width: cellWidth, height: cellWidth)
+            linksFlowLayout.sectionInset = UIEdgeInsetsMake(10.0, 5.0, 5.0, 5.0)
+            linksFlowLayout.minimumInteritemSpacing = 5.0
+            linksFlowLayout.headerReferenceSize = CGSize(width: CGRectGetWidth(pageScrollView!.frame), height: 44.0)
+            linksFlowLayout.minimumLineSpacing = 5.0
+            
+            if linksCollectionView != nil {
+                linksCollectionView!.hidden = false
+                linksTableView!.hidden = true
+                
+            } else {
+                
+                linksCollectionView = UICollectionView(frame: linksTableView!.frame, collectionViewLayout: linksFlowLayout)
+                linksCollectionView?.backgroundColor = UIColor.whiteColor()
+                linksCollectionView?.registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: "LinkCell")
+                linksCollectionView!.dataSource = self
+                linksCollectionView!.delegate = self
+                linksCollectionView!.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+                linksPageView!.addSubview(linksCollectionView!)
+            }
+            
+        }
     }
     
     //MARK: - Private
@@ -408,14 +461,15 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         return plot
     }
     
-    internal func pointForPlotWithIndex(index: Int) -> CGPoint {
+    internal func chartView(chartView: RCChartView!, pointForPlotWithIndex index: Int) -> CGPoint {
         
+        
+        //Totals page bar chart
         if (totalValues?.count > index) {
             return CGPointMake(CGFloat(index), totalValues![index])
         } else {
             return CGPointMake(CGFloat(index), 0.0)
         }
-        
     }
     
     internal func chartViewMaxX(chartView: RCChartView!) -> CGFloat {
@@ -449,8 +503,8 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         return ""
     }
     
-    
     //MARK: - <UIScrollViewDelegate>
+    
     func scrollViewDidScroll(scrollView: UIScrollView) {
         
         if scrollView == pageScrollView! {
@@ -553,7 +607,7 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         } else if tableView == linksTableView {
             //Cell for linksTableView
 
-            reusableCellID = "linkCellIdentifier"
+            reusableCellID = "linkTableCellIdentifier"
             
             if linkTitles?.count > indexPath.row {
                 cellMainText = "\(linkTitles![indexPath.row])"
@@ -609,6 +663,7 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     }
     
     //MARK: - <UITableViewDelegate>
+    
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if tableView == legendTableView {
             print("ResrouceViewController - Tapped on a cell at row \(indexPath.row) in legendTableView")
@@ -618,6 +673,38 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             
         } else if tableView == linksTableView {
             print("ResrouceViewController - Tapped on a cell at row \(indexPath.row) in linksTableView")
+        }
+    }
+    
+    //MARK: - <UICollectionViewDataSource>
+    
+    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if let source = linksDataSource {
+            return source.resourceViewController(self, numberOfRowsForLinkSection: section)
+            
+        } else {
+            return 0
+            
+        }
+    }
+    
+    func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+        if let source = linksDataSource {
+            return source.resourceViewControllerNumberOfLinkSections(self)
+            
+        } else {
+            return 0
+            
+        }
+    }
+    
+    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+        if let source = linksDataSource {
+            return source.resourceViewController(self, collectionView: collectionView, cellForLinkAtPath: indexPath)
+            
+        } else {
+            return collectionView.dequeueReusableCellWithReuseIdentifier("LinkCell", forIndexPath: indexPath)
+            
         }
     }
     

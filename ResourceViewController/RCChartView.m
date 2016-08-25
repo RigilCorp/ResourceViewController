@@ -81,7 +81,7 @@
             //Get title view from delegate method
             if ([dataSource respondsToSelector:@selector(titleViewForPlotAtIndex:)]) {
                 UIView *titleView = [dataSource titleViewForPlotAtIndex:i];
-                titleView.frame = CGRectMake([self cgpointForChartCoordinates:[dataSource pointForPlotWithIndex:i]].x + titleView.frame.origin.x,
+                titleView.frame = CGRectMake([self cgpointForChartCoordinates:[dataSource chartView:self pointForPlotWithIndex:i]].x + titleView.frame.origin.x,
                                              self.frame.size.height - titlesHeight + titleView.frame.origin.y,
                                              titleView.frame.size.width,
                                              titleView.frame.size.height);
@@ -89,7 +89,7 @@
                 
             //Get title from delegate method
             } else if ([dataSource respondsToSelector:@selector(titleForPlotAtIndex:)]) {
-                UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake([self cgpointForChartCoordinates:[dataSource pointForPlotWithIndex:i]].x - 10.0,
+                UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake([self cgpointForChartCoordinates:[dataSource chartView:self pointForPlotWithIndex:i]].x - 10.0,
                                                                                 self.frame.size.height + titlesWidth*(M_1_PI),
                                                                                 titlesWidth,
                                                                                 titlesHeight)];

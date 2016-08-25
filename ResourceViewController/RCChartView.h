@@ -22,7 +22,7 @@ typedef enum RCChartStyle {
 @required
 - (RCChartViewPlot *)plotWithIndex:(NSInteger)index forChartView:(RCChartView *)chartView;
 - (NSInteger)numberOfPlotsInChartView:(RCChartView *)chartView;
-- (CGPoint)pointForPlotWithIndex:(NSInteger)index;
+- (CGPoint)chartView:(RCChartView *)chartView pointForPlotWithIndex:(NSInteger)index;
 - (CGFloat)chartViewMaxX:(RCChartView *)chartView;
 - (CGFloat)chartViewMaxY:(RCChartView *)chartView;
 

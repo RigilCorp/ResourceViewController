@@ -63,7 +63,7 @@
             titleHeight = 0.0;
         }
         
-        CGPoint plotPoint = [chartView.dataSource pointForPlotWithIndex:index];
+        CGPoint plotPoint = [chartView.dataSource chartView:chartView pointForPlotWithIndex:index];
         
         CGFloat xRatio = chartView.frame.size.width/[chartView.dataSource chartViewMaxX:chartView];
         CGFloat yRatio = (chartView.frame.size.height - titleHeight)/[chartView.dataSource chartViewMaxY:chartView];

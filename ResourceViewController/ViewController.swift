@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, ResourceLinksDataSource {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +25,7 @@ class ViewController: UIViewController {
         
         //Create view controllers to be presented
         let resourceViewController = ResourceViewController()
+        resourceViewController.linksDataSource = self
         let navController = UINavigationController(rootViewController: resourceViewController)
         navController.navigationBar.opaque = false
         
@@ -37,9 +38,25 @@ class ViewController: UIViewController {
         self.presentViewController(navController, animated: true) {
             //If no colors are provided, default colors will be used
             resourceViewController.setup(totals: chartDictionary, properties: propertiesDictionary, links: linkDictionary, colors: [])
+            resourceViewController.toggleLinksDisplay()
         }
     }
 
-
+    //MARK: - <ResourceLinksDataSource>
+    
+    func resourceViewControllerNumberOfLinkSections(viewController: ResourceViewController) -> Int {
+        return 1
+    }
+    
+    func resourceViewController(viewController: ResourceViewController, numberOfRowsForLinkSection: Int) -> Int {
+        return 5
+    }
+    
+    func resourceViewController(viewController: ResourceViewController, collectionView: UICollectionView, cellForLinkAtPath indexPath: NSIndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("LinkCell", forIndexPath: indexPath)
+        cell.backgroundColor = UIColor.lightGrayColor()
+        
+        return cell
+    }
 }
 
