@@ -13,6 +13,7 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     private var pageScrollView: UIScrollView?
     
     private var pageControl: UIPageControl?
+    private var pages = [UIView]()
     
     //Bar chart view and properties
     private var barChartPageView : UIView?
@@ -57,60 +58,22 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         
         pageControl = UIPageControl(frame: CGRectMake(0.0, CGRectGetHeight(self.view.frame) - 30.0, 50.0, 30.0))
         pageControl?.center = CGPointMake(CGRectGetWidth(self.view.frame) / 2.0, pageControl!.center.y)
-        pageControl?.numberOfPages = 3
-        pageControl?.currentPage = 0
         pageControl?.currentPageIndicatorTintColor = UIColor.blackColor()
         pageControl?.pageIndicatorTintColor = UIColor.lightGrayColor()
         pageControl?.autoresizingMask = [.FlexibleTopMargin, .FlexibleRightMargin, .FlexibleLeftMargin]
         self.view.addSubview(pageControl!)
-        
-        //Create and add the barchartPageView to the scrollview which is going to be on the first page
-        barChartPageView = UIView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
-        barChartPageView?.autoresizingMask = [.FlexibleRightMargin, .FlexibleWidth, .FlexibleHeight]
-        
-        legendTableView = UITableView.init(frame: CGRectMake(CGRectGetMaxX(self.view.frame) - (CGRectGetMaxX(self.view.frame) / 4.0) - 20.0, 100.0, CGRectGetMaxX(self.view.frame) / 4.0, CGRectGetMaxY(self.view.frame)), style: .Grouped)
-        
-        pageScrollView!.addSubview(barChartPageView!)
-        
-        
-        //Create and add the propertiesPageView to the scrollview which is going to be on the second page
-        propertiesPageView = UIView(frame: CGRectMake(CGRectGetWidth(pageScrollView!.frame), 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
-        propertiesPageView?.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
-        
-        propertiesTableView = UITableView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth((propertiesPageView?.frame)!), CGRectGetHeight(propertiesPageView!.frame)), style: UITableViewStyle.Plain)
-        propertiesTableView?.dataSource = self
-        propertiesTableView?.delegate = self
-        propertiesTableView?.cellLayoutMarginsFollowReadableWidth = false
-        propertiesTableView?.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
-
-        //Add propertiesTableView to propertiesPageView
-        propertiesPageView!.addSubview(propertiesTableView!)
-
-        //Add propertiesPageView to pageScrollView so that it is place on the second page
-        pageScrollView!.addSubview(propertiesPageView!)
-        
-        
-        //Create and add the linksPageView to the scrollview which is going to be on the third page
-        linksPageView = UIView(frame: CGRectMake(CGRectGetWidth(pageScrollView!.frame) * 2, 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
-        linksPageView?.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
-        linksTableView = UITableView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth((linksPageView?.frame)!), CGRectGetHeight((linksPageView?.frame)!)), style: UITableViewStyle.Plain)
-        linksTableView?.dataSource = self
-        linksTableView?.delegate = self
-        linksTableView?.cellLayoutMarginsFollowReadableWidth = false
-        linksTableView?.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
-        
-        //Add linkTableView to linkPageView
-        linksPageView!.addSubview(linksTableView!)
-        
-        //Add linkPageView to pageScrollView so that it is place on the second page
-        pageScrollView!.addSubview(linksPageView!)
         
     }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         
-        pageScrollView!.contentSize = CGSizeMake(CGRectGetWidth(pageScrollView!.frame) * 3, CGRectGetHeight(pageScrollView!.frame)-64)
+        var barHeight: CGFloat = 0.0
+        if let bar = self.navigationController?.navigationBar {
+            barHeight = barHeight + CGRectGetHeight(bar.frame)
+        }
+        barHeight = barHeight + UIApplication.sharedApplication().statusBarFrame.size.height
+        pageScrollView!.contentSize = CGSizeMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), CGRectGetHeight(pageScrollView!.frame)-barHeight)
     }
     
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
@@ -125,7 +88,6 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             }
         }
         
-
     }
     
     func adjustForSize(size: CGSize) {
@@ -155,17 +117,52 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     }
     
     //MARK: - Public
-    func setup(totals totals: [String: AnyObject], properties: [String: AnyObject], links: [String: AnyObject], colors: [UIColor]) {
+    func setup(totals totals: [String: AnyObject]?, properties: [String: AnyObject]?, links: [String: AnyObject]?, colors: [UIColor]?) {
         
-        if colors.count > 0 {
-            chartColors = colors
-        } else {
-            chartColors = defaultColors
+        //Setup Totals bar chart page
+        if totals != nil {
+            self.setupTotalsPage(totals!, colors: colors)
         }
         
-        //Get the totalTitles, totalValues, propetyTitles, propertyValues, links
-        totalTitles = Array(totals.keys)
+        //Setup properties table
+        if properties != nil {
+            self.setupPropertiesPage(properties!)
+        }
         
+        //Setup links page
+        if links != nil {
+            self.setupLinksPage(links!)
+        }
+        
+        var barHeight: CGFloat = 0.0
+        if let bar = self.navigationController?.navigationBar {
+            barHeight = barHeight + CGRectGetHeight(bar.frame)
+        }
+        barHeight = barHeight + UIApplication.sharedApplication().statusBarFrame.size.height
+        pageScrollView!.contentSize = CGSizeMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), CGRectGetHeight(pageScrollView!.frame)-barHeight)
+        
+        if pages.count > 1 {
+            pageControl?.numberOfPages = pages.count
+            pageControl?.currentPage = 0
+        } else {
+            pageControl?.numberOfPages = 0
+        }
+        
+    }
+    
+    //MARK: - Private
+    
+    private func setupTotalsPage(totals: [String: AnyObject], colors: [UIColor]?) {
+        //Set colors for totals chart
+        chartColors = defaultColors
+        if colors != nil {
+            if colors!.count > 0 {
+                chartColors = colors!
+            }
+        }
+        
+        //Get the totals values
+        totalTitles = Array(totals.keys)
         for title in totalTitles! {
             if totalValues == nil {
                 totalValues = [CGFloat(totals[title] as! NSNumber)]
@@ -174,8 +171,29 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             }
         }
         
-        propertyTitles = Array(properties.keys)
+        if barChartPageView != nil {
+            barChartPageView!.frame = CGRectMake(0.0, 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame))
+            barChartPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleWidth, .FlexibleHeight]
+            
+        } else {
+            //Create and add the barchartPageView to the scrollview which is going to be on the first page
+            barChartPageView = UIView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
+            barChartPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleWidth, .FlexibleHeight]
+            legendTableView = UITableView(frame: CGRectMake(CGRectGetMaxX(self.view.frame) - (CGRectGetMaxX(self.view.frame) / 4.0) - 20.0, 100.0, CGRectGetMaxX(self.view.frame) / 4.0, CGRectGetMaxY(self.view.frame)), style: .Grouped)
+            pageScrollView!.addSubview(barChartPageView!)
+        }
+        pages.append(barChartPageView!)
         
+        //Create and setup chart
+        self.createChart(totalTitles!, values: totalValues!, colors: defaultColors)
+        
+        //Create and legend table
+        self.createLegendView(totalTitles!, values: totalValues!, colors: defaultColors)
+    }
+    
+    private func setupPropertiesPage(properties: [String: AnyObject]) {
+        //Setup Properties values
+        propertyTitles = Array(properties.keys)
         for proTitle in propertyTitles! {
             if propertyValues == nil {
                 propertyValues = [properties[proTitle] as! String]
@@ -184,8 +202,34 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             }
         }
         
-        linkTitles = Array(links.keys)
+        if propertiesPageView != nil {
+            propertiesPageView!.frame = CGRectMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame))
+            propertiesPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
+            
+        } else {
+            //Create and add the propertiesPageView to the scrollview which is going to be on the second page
+            propertiesPageView = UIView(frame: CGRectMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
+            propertiesPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
+            
+            propertiesTableView = UITableView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth((propertiesPageView?.frame)!), CGRectGetHeight(propertiesPageView!.frame)), style: UITableViewStyle.Plain)
+            propertiesTableView?.dataSource = self
+            propertiesTableView?.delegate = self
+            propertiesTableView?.cellLayoutMarginsFollowReadableWidth = false
+            propertiesTableView?.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+            
+            //Add propertiesTableView to propertiesPageView
+            propertiesPageView!.addSubview(propertiesTableView!)
+            
+            //Add propertiesPageView to pageScrollView so that it is place on the second page
+            pageScrollView!.addSubview(propertiesPageView!)
+        }
+        pages.append(propertiesPageView!)
         
+    }
+    
+    private func setupLinksPage(links: [String: AnyObject]) {
+        //Setup Links values
+        linkTitles = Array(links.keys)
         for linkTitle in linkTitles! {
             
             if linkDescriptions == nil {
@@ -194,84 +238,37 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             } else {
                 linkDescriptions?.append(links[linkTitle] as! String)
             }
-            
         }
         
-        if totalValues != nil && totalValues != nil {
-            
-            //Create and setup chart
-            self.createChart(totalTitles!, values: totalValues!, colors: defaultColors)
-            
-            //Create and legend table
-            self.createLegendView(totalTitles!, values: totalValues!, colors: defaultColors)
-            
-            propertiesTableView?.reloadData()
-            linksTableView?.reloadData()
+        if linksPageView != nil {
+            linksPageView!.frame = CGRectMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame))
+            linksPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
             
         } else {
-            print("ResourceViewController - Please pass the right dictionary objects")
+            //Create and add the linksPageView to the scrollview which is going to be on the third page
+            linksPageView = UIView(frame: CGRectMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
+            linksPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
+            linksTableView = UITableView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth((linksPageView?.frame)!), CGRectGetHeight((linksPageView?.frame)!)), style: UITableViewStyle.Plain)
+            linksTableView!.dataSource = self
+            linksTableView!.delegate = self
+            linksTableView!.cellLayoutMarginsFollowReadableWidth = false
+            linksTableView!.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+            
+            //Add linkTableView to linkPageView
+            linksPageView!.addSubview(linksTableView!)
+            
+            //Add linkPageView to pageScrollView so that it is place on the second page
+            pageScrollView!.addSubview(linksPageView!)
         }
+        pages.append(linksPageView!)
         
     }
-    
-    func modify(totals totals: [String: AnyObject], properties: [String: AnyObject], links: [String: AnyObject], colors: [UIColor]) {
-        
-        if colors.count > 0 {
-            chartColors = colors
-        } else {
-            chartColors = defaultColors
-        }
-        
-        //Get the totalTitles, totalValues, propetyTitles, propertyValues, links
-        
-        totalTitles = Array(totals.keys)
-        totalValues?.removeAll()
-        
-        for title in totalTitles! {
-            if totalValues == nil {
-                totalValues = [CGFloat(totals[title] as! NSNumber)]
-            } else {
-                totalValues?.append(CGFloat(totals[title] as! NSNumber))
-            }
-        }
-        
-        propertyTitles = Array(properties.keys)
-        propertyValues?.removeAll()
-        
-        for proTitle in propertyTitles! {
-            if propertyValues == nil {
-                propertyValues = [properties[proTitle] as! String]
-            } else {
-                propertyValues?.append(properties[proTitle] as! String)
-            }
-        }
-        
-        
-        linkTitles = Array(links.keys)
-        linkDescriptions?.removeAll()
-        
-        for linkTitle in linkTitles! {
-            
-            if linkDescriptions == nil {
-                linkDescriptions = [links[linkTitle] as! String]
-            } else {
-                linkDescriptions?.append(links[linkTitle] as! String)
-            }
-            
-        }
-        
-        chart!.reloadData()
-        legendTableView?.reloadData()
-        propertiesTableView?.reloadData()
-        linksTableView?.reloadData()
-        
-
-    }
-    
-    
-    //MARK: - Private
     
     private func createChart(titles: [String], values:[CGFloat], colors:[UIColor]) {
+        
+        //Remove any previous chart views
+        chart?.removeFromSuperview()
+        yAxisLabelsContainerView?.removeFromSuperview()
         
         //Sort Values to find the highest value to create labels
         let sortedValues = (values as NSArray).sort { (first, second) -> Bool in
@@ -334,8 +331,12 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     }
     
     private func createLegendView(titles: [String], values:[CGFloat], colors:[UIColor]) {
-        //Setup LegendTableView based on device type and orientation
         
+        //Remove any previous legend views
+        legendTableView?.removeFromSuperview()
+        gradientView?.removeFromSuperview()
+        
+        //Setup LegendTableView based on device type and orientation
         if self.view.frame.size.width >= self.view.frame.size.height {
             //setup for landscape
             self.legendTableView = UITableView(frame: CGRectMake(CGRectGetMaxX(self.chart!.frame) + 20.0, 20.0, CGRectGetWidth(barChartPageView!.frame)/3.0-25.0 , CGRectGetHeight(self.chart!.frame)/3.0*2.0), style: .Plain)
