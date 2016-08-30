@@ -31,7 +31,13 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     private var chartColors : [UIColor]?
     let maskLayer = CAGradientLayer()
     private var gradientView : UIView?
-    private let defaultColors = [UIColor(red: 90.0/255.0, green: 200.0/255.0, blue: 250/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 204.0/255.0, blue: 0/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 149.0/255.0, blue: 0.0/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 45.0/255.0, blue: 85.0/255.0, alpha: 1.0), UIColor(red: 0.0/255.0, green: 122.0/255.0, blue: 255.0/255.0, alpha: 1.0), UIColor(red: 76.0/255.0, green: 217.0/255.0, blue: 100.0/255.0, alpha: 1.0), UIColor(red: 255.0/255.0, green: 59.0/255.0, blue: 48.0/255.0, alpha: 1.0)]
+    private let defaultColors = [UIColor(red: 90.0/255.0, green: 200.0/255.0, blue: 250/255.0, alpha: 1.0),
+                                 UIColor(red: 255.0/255.0, green: 204.0/255.0, blue: 0/255.0, alpha: 1.0),
+                                 UIColor(red: 255.0/255.0, green: 149.0/255.0, blue: 0.0/255.0, alpha: 1.0),
+                                 UIColor(red: 255.0/255.0, green: 45.0/255.0, blue: 85.0/255.0, alpha: 1.0),
+                                 UIColor(red: 0.0/255.0, green: 122.0/255.0, blue: 255.0/255.0, alpha: 1.0),
+                                 UIColor(red: 76.0/255.0, green: 217.0/255.0, blue: 100.0/255.0, alpha: 1.0),
+                                 UIColor(red: 255.0/255.0, green: 59.0/255.0, blue: 48.0/255.0, alpha: 1.0)]
     
     //Properties view and properties
     private var propertiesPageView : UIView?
@@ -125,17 +131,17 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         chart?.reloadData()
         
         if isLinksGridMode {
-            let numWide = floor(CGRectGetWidth(pageScrollView!.frame)/300)
-            let cellWidth = CGRectGetWidth(pageScrollView!.frame)/numWide - 10.0
+            let numWide = floor(size.width/300)
+            let cellWidth = size.width/numWide - 10.0
             linksFlowLayout.itemSize = CGSize(width: cellWidth, height: cellWidth)
             linksFlowLayout.sectionInset = UIEdgeInsetsMake(10.0, 5.0, 5.0, 5.0)
             linksFlowLayout.minimumInteritemSpacing = 5.0
-            linksFlowLayout.headerReferenceSize = CGSize(width: CGRectGetWidth(pageScrollView!.frame), height: 44.0)
+            linksFlowLayout.headerReferenceSize = CGSize(width: size.width, height: 44.0)
             linksFlowLayout.minimumLineSpacing = 5.0
             linksCollectionView?.reloadData()
         }
         
-        pageScrollView?.setContentOffset(CGPoint(x: CGFloat(pageControl!.currentPage) * CGRectGetWidth(pageScrollView!.frame), y: 0), animated: true)
+        pageScrollView?.setContentOffset(CGPoint(x: CGFloat(pageControl!.currentPage) * size.width, y: 0), animated: true)
     }
     
     //MARK: - Public
