@@ -30,6 +30,7 @@ typedef enum RCChartStyle {
 - (NSString *)titleForPlotAtIndex:(NSInteger)index;
 - (UIView *)titleViewForPlotAtIndex:(NSInteger)index;
 
+
 @end
 
 //_______________________
@@ -42,6 +43,8 @@ typedef enum RCChartStyle {
 - (void)chartViewPlotSingleTapped:(RCChartViewPlot *)chartViewPlot atIndex:(NSInteger)index;
 - (void)chartViewPlotDoubleTapped:(RCChartViewPlot *)chartViewPlot atIndex:(NSInteger)index;
 - (void)chartViewPlotLongPressed:(RCChartViewPlot *)chartViewPlot atIndex:(NSInteger)index;
+
+
 
 @end
 //_______________________
@@ -62,9 +65,12 @@ typedef enum RCChartStyle {
 /**Default of 100.0*/
 @property (nonatomic) CGFloat titlesWidth;
 @property (nonatomic) NSTextAlignment titleTextAlignment;
+//**Default of M_PI_4*
+@property (nonatomic) CGFloat xAxisTransform;
 
 - (id)initWithFrame:(CGRect)frame style:(RCChartStyle)style ;
 - (void)reloadData;
 - (void)clearData;
 
+- (UIView*)createYAxisLabelsView:(NSArray*)sortedValues;   // JT 16.09.09
 @end

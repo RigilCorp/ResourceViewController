@@ -350,29 +350,52 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             
         }
         
-        var index = 0
-        let labelHeight = CGRectGetHeight(chart!.frame) / CGFloat(5)
+  
+        let chartCanCreateYAxisLabels = chart!.respondsToSelector(Selector("createYAxisLabelsView:"))   // true
         
-        yAxisLabelsContainerView = UIView(frame: CGRectMake(0.0, CGRectGetMinY(self.chart!.frame), 80.0,  CGRectGetHeight(self.chart!.frame)))
-
-        for i in 0 ... 4 {
+        
+        if (chartCanCreateYAxisLabels)
+        {
+            let sortedValuesN = NSMutableArray()
             
-            let chartLabel = UILabel(frame: CGRectMake( 0.0 , (labelHeight * CGFloat(index)) , 75.0, 20.0))
-            var value = CGFloat(0.0)
-            if i == 0 {
-                value = CGFloat(sortedValues.first as! NSNumber)
-            } else {
-                value = CGFloat(sortedValues.first as! NSNumber) * (CGFloat(5 - i) / 5)
+            for myFloat in sortedValues
+            {
+                let myNumber = NSNumber(float: Float(myFloat as! NSNumber))
+                sortedValuesN.addObject(myNumber)
             }
-            chartLabel.textAlignment = NSTextAlignment.Right
-            chartLabel.font = UIFont.systemFontOfSize(15.0)
-            chartLabel.text = "\(self.suffixNumber(NSNumber(float: Float(value))))"
-            yAxisLabelsContainerView?.addSubview(chartLabel)
-
-            index += 1
+            
+            
+            yAxisLabelsContainerView = self.chart!.createYAxisLabelsView(sortedValuesN as [AnyObject])
+            
+            barChartPageView?.addSubview(yAxisLabelsContainerView!)
         }
-        
-        barChartPageView?.addSubview(yAxisLabelsContainerView!)
+        else
+        {
+            var index = 0
+            let labelHeight = CGRectGetHeight(chart!.frame) / CGFloat(5)
+            
+            yAxisLabelsContainerView = UIView(frame: CGRectMake(0.0, CGRectGetMinY(self.chart!.frame),
+                80.0,  CGRectGetHeight(self.chart!.frame)))
+            
+            for i in 0 ... 4 {
+                
+                let chartLabel = UILabel(frame: CGRectMake( 0.0 , (labelHeight * CGFloat(index)) , 75.0, 20.0))
+                var value = CGFloat(0.0)
+                if i == 0 {
+                    value = CGFloat(sortedValues.first as! NSNumber)
+                } else {
+                    value = CGFloat(sortedValues.first as! NSNumber) * (CGFloat(5 - i) / 5)
+                }
+                chartLabel.textAlignment = NSTextAlignment.Right
+                chartLabel.font = UIFont.systemFontOfSize(15.0)
+                chartLabel.text = "\(self.suffixNumber(NSNumber(float: Float(value))))"
+                yAxisLabelsContainerView?.addSubview(chartLabel)
+                
+                index += 1
+            }   // JT 16.09.09
+            
+            barChartPageView?.addSubview(yAxisLabelsContainerView!)
+        }
 
         //Setup Chart subviews
         chart!.titlesColor = UIColor.darkTextColor()

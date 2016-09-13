@@ -41,6 +41,9 @@
         titlesWidth = 100.0;
         titlesHeight = 32.0;
         titleTextAlignment = NSTextAlignmentCenter;
+        
+        _xAxisTransform = M_PI_4;    // default xAxis transform
+
     }
     return self;
 }
@@ -98,7 +101,7 @@
                 titleLabel.textColor = titlesColor;
                 titleLabel.textAlignment = titleTextAlignment;
                 titleLabel.numberOfLines = 0;
-                titleLabel.transform = CGAffineTransformMakeRotation(M_PI_4);
+                titleLabel.transform = CGAffineTransformMakeRotation(_xAxisTransform);
                 [self addSubview:titleLabel];
             }
         }
@@ -137,5 +140,68 @@
     if (delegate && [delegate respondsToSelector:@selector(chartViewPlotLongPressed:atIndex:)])
         [delegate chartViewPlotLongPressed:chartViewPlot atIndex:index];
 }
+
+
+#pragma mark - createYAxisLabelsView
+
+
+- (UIView*) createYAxisLabelsView:(NSArray*)sortedValues   // JT 16.09.09
+{
+    int index = 0;
+    int numberOfLabels = 5; // default: 5
+    CGFloat labelHeight = self.frame.size.height / numberOfLabels; 
+    
+    UIView *yAxisLabelsContainerView = [[UIView alloc ] initWithFrame:
+                                        CGRectMake(0.0, CGRectGetMinY(self.frame),
+                                                                                  80.0,
+                                                                                  CGRectGetHeight( self.frame))];
+    
+    for (int i = 0; i < numberOfLabels; ++i)
+    {
+        UILabel *chartLabel =
+        [[UILabel alloc ] initWithFrame: CGRectMake( 0.0 , (labelHeight * (index)) , 75.0, 20.0)];
+        
+        CGFloat value = (0.0);
+        if (i == 0) {
+            value = ((NSNumber*)sortedValues[0]).floatValue;
+        } else {
+            value = ((NSNumber*)sortedValues[0]).floatValue * (numberOfLabels-i) / (CGFloat) numberOfLabels;
+            
+        }
+        chartLabel.textAlignment = NSTextAlignmentRight;
+        chartLabel.font =   [UIFont systemFontOfSize:15.0];
+        
+        // todo use same fonts and colors as the x-axis labels. // JT 16.09.09
+        
+        chartLabel.text = [self suffixNumber: value];
+        [yAxisLabelsContainerView addSubview:chartLabel];
+        
+        index += 1;
+    }
+    
+    return yAxisLabelsContainerView;
+}
+
+
+- (NSString*) suffixNumber:(CGFloat)num
+{
+    NSString *sign = ((num < 0) ? @"-" : @"" );
+    
+    num = fabs(num);
+    
+    if (num < 1000.0)
+    {
+        return [NSString stringWithFormat: @"%@%3.1f", sign, num];
+    }
+    
+    int exp = (log10(num) / 3.0 ); //log10(1000));
+    
+    NSArray *units = @[@"K", @"M", @"G", @"T", @"P", @"E"];
+    
+    double roundedNum = round(10 * num / pow(1000.0,(double)(exp))) / 10;
+    
+    return [NSString stringWithFormat: @"%@%.1f%@", sign, roundedNum, units[exp-1]]; //"\(sign)\(roundedNum)\(units[exp-1])";
+}
+
 
 @end
