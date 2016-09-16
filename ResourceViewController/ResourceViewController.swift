@@ -15,6 +15,7 @@ protocol ResourceLinksDataSource {
 }
 
 class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegate, UITableViewDataSource, RCChartViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate {
+    
 
     private var pageScrollView: UIScrollView?
     
@@ -58,50 +59,50 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.edgesForExtendedLayout = UIRectEdge.None;
-        self.view.backgroundColor = UIColor.whiteColor()
-        self.navigationController?.navigationBar.translucent = false
+        self.edgesForExtendedLayout = []
+        self.view.backgroundColor = UIColor.white
+        self.navigationController?.navigationBar.isTranslucent = false
         
         //Set up scrollView
-        pageScrollView = UIScrollView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame) - 30.0))
+        pageScrollView = UIScrollView(frame: CGRect(x: 0.0, y: 0.0, width: self.view.frame.width, height: self.view.frame.height - 30.0))
         self.view.addSubview(pageScrollView!)
-        pageScrollView!.pagingEnabled = true
-        pageScrollView!.autoresizingMask = [.FlexibleWidth,  .FlexibleHeight]
+        pageScrollView!.isPagingEnabled = true
+        pageScrollView!.autoresizingMask = [.flexibleWidth,  .flexibleHeight]
         pageScrollView!.delegate = self
         pageScrollView?.canCancelContentTouches = false
         
-        pageControl = UIPageControl(frame: CGRectMake(0.0, CGRectGetHeight(self.view.frame) - 30.0, 50.0, 30.0))
-        pageControl?.center = CGPointMake(CGRectGetWidth(self.view.frame) / 2.0, pageControl!.center.y)
-        pageControl?.currentPageIndicatorTintColor = UIColor.blackColor()
-        pageControl?.pageIndicatorTintColor = UIColor.lightGrayColor()
-        pageControl?.autoresizingMask = [.FlexibleTopMargin, .FlexibleRightMargin, .FlexibleLeftMargin]
+        pageControl = UIPageControl(frame: CGRect(x: 0.0, y: self.view.frame.height - 30.0, width: 50.0, height: 30.0))
+        pageControl?.center = CGPoint(x: self.view.frame.width / 2.0, y: pageControl!.center.y)
+        pageControl?.currentPageIndicatorTintColor = UIColor.black
+        pageControl?.pageIndicatorTintColor = UIColor.lightGray
+        pageControl?.autoresizingMask = [.flexibleTopMargin, .flexibleRightMargin, .flexibleLeftMargin]
         self.view.addSubview(pageControl!)
         
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
         var barHeight: CGFloat = 0.0
         if let bar = self.navigationController?.navigationBar {
-            barHeight = barHeight + CGRectGetHeight(bar.frame)
+            barHeight = barHeight + bar.frame.height
         }
-        barHeight = barHeight + UIApplication.sharedApplication().statusBarFrame.size.height
-        pageScrollView!.contentSize = CGSizeMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), CGRectGetHeight(pageScrollView!.frame)-barHeight)
+        barHeight = barHeight + UIApplication.shared.statusBarFrame.size.height
+        pageScrollView!.contentSize = CGSize(width: pageScrollView!.frame.width * CGFloat(pages.count), height: pageScrollView!.frame.height-barHeight)
     }
     
-    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
         
-        self.adjustForSize(size)
-        coordinator.animateAlongsideTransition(nil) { (context) in
+        self.adjustForSize(size: size)
+        
+        coordinator.animate(alongsideTransition: nil) { (context) in
             //sometimes have to readjust if the size is different after transition,
             //than what was expected
             if self.view.frame.size != size {
-                self.adjustForSize(self.view.frame.size)
+                self.adjustForSize(size: self.view.frame.size)
             }
         }
-        
     }
     
     func adjustForSize(size: CGSize) {
@@ -111,21 +112,22 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             //setup for landscape
             var y = (size.height-30.0) - (size.height-30.0) / 3.0 * 2.0 - 100.0
             y = (y < 20) ? 20.0 : y
-            self.chart?.frame = CGRectMake(80.0, y, (size.width)/3.0*2.0 - 100.0, (size.height-30.0) / 3.0 * 2.0)
-            self.legendTableView?.frame = CGRectMake(CGRectGetMaxX(self.chart!.frame) + 20.0, 20.0, size.width/3.0-25.0 , CGRectGetHeight(self.chart!.frame)/3.0*2.0)
+            self.chart?.frame = CGRect(x: 80.0, y: y, width: (size.width)/3.0*2.0 - 100.0, height: (size.height-30.0) / 3.0 * 2.0)
+            self.legendTableView?.frame = CGRect(x: self.chart!.frame.maxX, y: 20.0, width: size.width/3.0-25.0, height: self.chart!.frame.height/3.0*2.0)
             
         } else {
             //setup for portrait
             var y = (size.height-30.0) / 2.0 - 70.0
             y =  (y < (size.height-30.0)/3.0 + 20.0) ? (size.height-30.0)/3.0 + 20.0 : y
-            self.chart?.frame = CGRectMake(80.0, y, size.width-120.0, ((size.height-30.0) / 2.0) - 70.0)
-            self.legendTableView?.frame = CGRectMake(80.0 , 20.0, size.width-120.0, (size.height-30.0)/3.0)
+            self.chart?.frame = CGRect(x: 80.0, y: y, width: size.width-120.0, height: ((size.height-30.0) / 2.0) - 70.0)
+            self.legendTableView?.frame = CGRect(x: 80.0, y: 20.0, width: size.width-120.0, height: (size.height-30.0)/3.0)
             
         }
-        let xLabelHeight = CGRectGetWidth(chart!.frame) / CGFloat(totalTitles!.count) - 8.0
+        let xLabelHeight = chart!.frame.width / CGFloat(totalTitles!.count) - 8.0
         chart!.titlesHeight = xLabelHeight
-        chart!.titlesFont = UIFont.systemFontOfSize(10.0 + CGRectGetWidth(chart!.frame)/100.0)
-        self.yAxisLabelsContainerView!.frame = CGRectMake(0.0, CGRectGetMinY(self.chart!.frame), 80.0,  CGRectGetHeight(self.chart!.frame))
+        chart!.titlesFont = UIFont.systemFont(ofSize: 10.0 + chart!.frame.width/100.0)
+        self.yAxisLabelsContainerView!.frame = CGRect(x: 0.0, y: (self.chart?.frame.minY)!, width: 80.0, height: (self.chart?.frame.height)!)
+        
         self.gradientView?.frame = self.legendTableView!.frame
         self.maskLayer.frame = gradientView!.bounds
         chart?.reloadData()
@@ -145,29 +147,29 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     }
     
     //MARK: - Public
-    func setup(totals totals: [String: AnyObject]?, properties: [String: AnyObject]?, links: [String: AnyObject]?, colors: [UIColor]?) {
+    func setup(totals: [String: AnyObject]?, properties: [String: AnyObject]?, links: [String: AnyObject]?, colors: [UIColor]?) {
         
         //Setup Totals bar chart page
         if totals != nil {
-            self.setupTotalsPage(totals!, colors: colors)
+            self.setupTotalsPage(totals: totals!, colors: colors)
         }
         
         //Setup properties table
         if properties != nil {
-            self.setupPropertiesPage(properties!)
+            self.setupPropertiesPage(properties: properties!)
         }
         
         //Setup links page
         if links != nil {
-            self.setupLinksPage(links!)
+            self.setupLinksPage(links: links!)
         }
         
         var barHeight: CGFloat = 0.0
         if let bar = self.navigationController?.navigationBar {
-            barHeight = barHeight + CGRectGetHeight(bar.frame)
+            barHeight = barHeight + bar.frame.height
         }
-        barHeight = barHeight + UIApplication.sharedApplication().statusBarFrame.size.height
-        pageScrollView!.contentSize = CGSizeMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), CGRectGetHeight(pageScrollView!.frame)-barHeight)
+        barHeight = barHeight + UIApplication.shared.statusBarFrame.size.height
+        pageScrollView!.contentSize = CGSize(width: (pageScrollView?.frame.width)! * CGFloat(pages.count), height: (pageScrollView?.frame.height)!-barHeight)
         
         if pages.count > 1 {
             pageControl?.numberOfPages = pages.count
@@ -183,26 +185,26 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         
         if isLinksGridMode {
             
-            let numWide = floor(CGRectGetWidth(pageScrollView!.frame)/300)
-            let cellWidth = CGRectGetWidth(pageScrollView!.frame)/numWide - 10.0
+            let numWide = floor(pageScrollView!.frame.width/300)
+            let cellWidth = pageScrollView!.frame.width/numWide - 10.0
             linksFlowLayout.itemSize = CGSize(width: cellWidth, height: cellWidth)
             linksFlowLayout.sectionInset = UIEdgeInsetsMake(10.0, 5.0, 5.0, 5.0)
             linksFlowLayout.minimumInteritemSpacing = 5.0
-            linksFlowLayout.headerReferenceSize = CGSize(width: CGRectGetWidth(pageScrollView!.frame), height: 44.0)
+            linksFlowLayout.headerReferenceSize = CGSize(width: pageScrollView!.frame.width, height: 44.0)
             linksFlowLayout.minimumLineSpacing = 5.0
             
             if linksCollectionView != nil {
-                linksCollectionView!.hidden = false
-                linksTableView!.hidden = true
+                linksCollectionView!.isHidden = false
+                linksTableView!.isHidden = true
                 
             } else {
                 
                 linksCollectionView = UICollectionView(frame: linksTableView!.frame, collectionViewLayout: linksFlowLayout)
-                linksCollectionView?.backgroundColor = UIColor.whiteColor()
-                linksCollectionView?.registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: "LinkCell")
+                linksCollectionView?.backgroundColor = UIColor.white
+                linksCollectionView?.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "LinkCell")
                 linksCollectionView!.dataSource = self
                 linksCollectionView!.delegate = self
-                linksCollectionView!.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+                linksCollectionView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                 linksPageView!.addSubview(linksCollectionView!)
             }
             
@@ -231,23 +233,24 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         }
         
         if barChartPageView != nil {
-            barChartPageView!.frame = CGRectMake(0.0, 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame))
-            barChartPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleWidth, .FlexibleHeight]
+            barChartPageView!.frame = CGRect(x: 0.0, y: 0.0, width: (pageScrollView?.frame.width)!, height: (pageScrollView?.frame.height)!)
+            barChartPageView!.autoresizingMask = [.flexibleRightMargin, .flexibleWidth, .flexibleHeight]
             
         } else {
             //Create and add the barchartPageView to the scrollview which is going to be on the first page
-            barChartPageView = UIView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
-            barChartPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleWidth, .FlexibleHeight]
-            legendTableView = UITableView(frame: CGRectMake(CGRectGetMaxX(self.view.frame) - (CGRectGetMaxX(self.view.frame) / 4.0) - 20.0, 100.0, CGRectGetMaxX(self.view.frame) / 4.0, CGRectGetMaxY(self.view.frame)), style: .Grouped)
+            barChartPageView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: pageScrollView!.frame.width, height: pageScrollView!.frame.height))
+            barChartPageView!.autoresizingMask = [.flexibleRightMargin, .flexibleWidth, .flexibleHeight]
+            legendTableView = UITableView(frame: CGRect(x: (self.view.frame.maxX * 3.0/4.0) - 20.0, y: 100.0, width: self.view.frame.maxX / 4.0, height: self.view.frame.maxY), style:.grouped)
+            
             pageScrollView!.addSubview(barChartPageView!)
         }
         pages.append(barChartPageView!)
         
         //Create and setup chart
-        self.createChart(totalTitles!, values: totalValues!, colors: defaultColors)
+        self.createChart(titles: totalTitles!, values: totalValues!, colors: defaultColors)
         
         //Create and legend table
-        self.createLegendView(totalTitles!, values: totalValues!, colors: defaultColors)
+        self.createLegendView(titles: totalTitles!, values: totalValues!, colors: defaultColors)
     }
     
     private func setupPropertiesPage(properties: [String: AnyObject]) {
@@ -262,19 +265,20 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         }
         
         if propertiesPageView != nil {
-            propertiesPageView!.frame = CGRectMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame))
-            propertiesPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
+            propertiesPageView!.frame = CGRect(x: (pageScrollView?.frame.width)! * CGFloat(pages.count), y: 0.0, width: (pageScrollView?.frame.width)!, height: (pageScrollView?.frame.height)!)
+            propertiesPageView!.autoresizingMask = [.flexibleRightMargin, .flexibleLeftMargin, .flexibleWidth, .flexibleHeight]
             
         } else {
             //Create and add the propertiesPageView to the scrollview which is going to be on the second page
-            propertiesPageView = UIView(frame: CGRectMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
-            propertiesPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
+//            CGRect(x: (pageScrollView.frame.width) * CGFloat(pages.count), y: 0.0, width: pageScrollView.frame.width, height: pageScrollView?.frame.height)
+            propertiesPageView = UIView(frame: CGRect(x: (pageScrollView?.frame.width)! * CGFloat(pages.count), y: 0.0, width: (pageScrollView?.frame.width)!, height: (pageScrollView?.frame.height)!))
             
-            propertiesTableView = UITableView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth((propertiesPageView?.frame)!), CGRectGetHeight(propertiesPageView!.frame)), style: UITableViewStyle.Plain)
+            propertiesPageView!.autoresizingMask = [.flexibleRightMargin, .flexibleLeftMargin, .flexibleWidth, .flexibleHeight]
+            propertiesTableView = UITableView(frame: CGRect(x: 0.0, y: 0.0, width: (propertiesPageView?.frame.width)!, height: (propertiesPageView?.frame.height)!), style: UITableViewStyle.plain)
             propertiesTableView?.dataSource = self
             propertiesTableView?.delegate = self
             propertiesTableView?.cellLayoutMarginsFollowReadableWidth = false
-            propertiesTableView?.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+            propertiesTableView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             
             //Add propertiesTableView to propertiesPageView
             propertiesPageView!.addSubview(propertiesTableView!)
@@ -300,18 +304,20 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         }
         
         if linksPageView != nil {
-            linksPageView!.frame = CGRectMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame))
-            linksPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
+            
+            linksPageView!.frame = CGRect(x: 0.0, y: 0.0, width: (propertiesPageView?.frame.width)!, height: (propertiesPageView?.frame.height)!)
+            linksPageView!.autoresizingMask = [.flexibleRightMargin, .flexibleLeftMargin, .flexibleWidth, .flexibleHeight]
             
         } else {
             //Create and add the linksPageView to the scrollview which is going to be on the third page
-            linksPageView = UIView(frame: CGRectMake(CGRectGetWidth(pageScrollView!.frame) * CGFloat(pages.count), 0.0, CGRectGetWidth(pageScrollView!.frame), CGRectGetHeight(pageScrollView!.frame)))
-            linksPageView!.autoresizingMask = [.FlexibleRightMargin, .FlexibleLeftMargin, .FlexibleWidth, .FlexibleHeight]
-            linksTableView = UITableView(frame: CGRectMake(0.0, 0.0, CGRectGetWidth((linksPageView?.frame)!), CGRectGetHeight((linksPageView?.frame)!)), style: UITableViewStyle.Plain)
+            
+            linksPageView = UIView(frame: CGRect(x: (pageScrollView?.frame.width)! * CGFloat(pages.count), y: 0.0, width: (pageScrollView?.frame.width)!, height: (pageScrollView?.frame.height)!))
+            linksPageView!.autoresizingMask = [.flexibleRightMargin, .flexibleLeftMargin, .flexibleWidth, .flexibleHeight]
+            linksTableView = UITableView(frame: CGRect(x: 0.0, y: 0.0, width: (linksPageView?.frame.width)!, height: (linksPageView?.frame.height)!), style: .plain)
             linksTableView!.dataSource = self
             linksTableView!.delegate = self
             linksTableView!.cellLayoutMarginsFollowReadableWidth = false
-            linksTableView!.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+            linksTableView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             
             //Add linkTableView to linkPageView
             linksPageView!.addSubview(linksTableView!)
@@ -330,7 +336,7 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         yAxisLabelsContainerView?.removeFromSuperview()
         
         //Sort Values to find the highest value to create labels
-        let sortedValues = (values as NSArray).sort { (first, second) -> Bool in
+        let sortedValues = (values as NSArray).sorted { (first, second) -> Bool in
             if first as! CGFloat > second as! CGFloat {
                 return true
             } else {
@@ -340,13 +346,14 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         
         if self.view.frame.size.width >= self.view.frame.size.height {
             //setup for landscape
-            var y = CGRectGetHeight(barChartPageView!.frame) - (CGRectGetHeight(barChartPageView!.frame)) / 3.0 * 2.0 - 100.0
+            var y = barChartPageView!.frame.height - (barChartPageView!.frame.height) / 3.0 * 2.0 - 100.0
             y = (y < 20) ? 20.0 : y
-            chart = RCChartView(frame: CGRectMake(80.0, y, (CGRectGetWidth(pageScrollView!.frame))/3.0*2.0 - 100.0, (CGRectGetHeight(barChartPageView!.frame)) / 3.0 * 2.0), style: RCChartStyleBar)
+            
+            chart = RCChartView(frame: CGRect(x: 80.0, y: y, width: (pageScrollView?.frame.width)!/3.0*2.0 - 100.0, height: (barChartPageView?.frame.height)! * 2.0 / 3.0), style: RCChartStyleBar)
             
         } else {
             //setup for portrait
-            chart = RCChartView(frame: CGRectMake(80.0, (CGRectGetHeight(pageScrollView!.frame)) / 2.0 - 70.0, CGRectGetWidth(pageScrollView!.frame)-120.0, (CGRectGetHeight(pageScrollView!.frame) / 2.0) - 70.0), style: RCChartStyleBar)
+            chart = RCChartView(frame: CGRect(x: 80.0, y: ((pageScrollView?.frame.height)! / 2.0) - 70.0 , width:(pageScrollView?.frame.width)! - 120.0, height: ((pageScrollView?.frame.height)! / 2.0) - 70.0), style:RCChartStyleBar)
             
         }
         
@@ -355,8 +362,8 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         
         for myFloat in sortedValues
         {
-            let myNumber = NSNumber(float: Float(myFloat as! NSNumber))
-            sortedValuesN.addObject(myNumber)
+            let myNumber = NSNumber(value: Float(myFloat as! NSNumber))
+            sortedValuesN.add(myNumber)
         }
         
         
@@ -365,13 +372,13 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         barChartPageView?.addSubview(yAxisLabelsContainerView!)
 
         //Setup Chart subviews
-        chart!.titlesColor = UIColor.darkTextColor()
-        let xLabelHeight = CGRectGetWidth(chart!.frame) / CGFloat(totalTitles!.count) - 8.0
+        chart!.titlesColor = UIColor.darkText
+        let xLabelHeight = chart!.frame.width / CGFloat(totalTitles!.count) - 8.0
         chart!.titlesHeight = xLabelHeight
-        chart!.titlesFont = UIFont.systemFontOfSize(10.0 + CGRectGetWidth(chart!.frame)/100.0)
-        chart?.titleTextAlignment = NSTextAlignment.Left
+        chart!.titlesFont = UIFont.systemFont(ofSize: 10.0 + chart!.frame.width/100.0)
+        chart?.titleTextAlignment = NSTextAlignment.left
         chart!.displayTitles = true
-        chart!.userInteractionEnabled = true
+        chart!.isUserInteractionEnabled = true
         chart!.dataSource = self
         
         barChartPageView!.addSubview(chart!)
@@ -388,19 +395,21 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         //Setup LegendTableView based on device type and orientation
         if self.view.frame.size.width >= self.view.frame.size.height {
             //setup for landscape
-            self.legendTableView = UITableView(frame: CGRectMake(CGRectGetMaxX(self.chart!.frame) + 20.0, 20.0, CGRectGetWidth(barChartPageView!.frame)/3.0-25.0 , CGRectGetHeight(self.chart!.frame)/3.0*2.0), style: .Plain)
+            
+            self.legendTableView = UITableView(frame: CGRect(x: (self.chart?.frame.maxX)!, y: 20.0, width: barChartPageView!.frame.width/3.0-25.0, height: self.chart!.frame.height/3.0*2.0), style: .plain)
             
         } else {
             //setup for portrait
-            self.legendTableView = UITableView(frame: CGRectMake(80.0, 20.0, CGRectGetWidth(barChartPageView!.frame) - 120.0, (CGRectGetHeight(barChartPageView!.frame))/3.0), style: .Plain)
-            if CGRectGetMinY(chart!.frame) < CGRectGetMaxY(self.legendTableView!.frame) {
-                chart!.frame = CGRect(origin: CGPoint(x: CGRectGetMinX(chart!.frame), y: CGRectGetMaxY(self.legendTableView!.frame)), size: chart!.frame.size)
+            
+            self.legendTableView = UITableView(frame: CGRect(x: 80.0, y: 20.0, width: (barChartPageView?.frame.width)! - 120.0, height: (barChartPageView?.frame.height)!/3.0), style: .plain)
+            if chart!.frame.minY < self.legendTableView!.frame.maxY {
+                chart!.frame = CGRect(origin: CGPoint(x: chart!.frame.minX, y: self.legendTableView!.frame.maxY), size: chart!.frame.size)
             }
             
         }
         
         //Setup legend table
-        legendTableView?.separatorStyle = .None
+        legendTableView?.separatorStyle = .none
         legendTableView?.dataSource = self
         legendTableView?.delegate = self
         barChartPageView!.addSubview(legendTableView!)
@@ -409,14 +418,14 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         //Setup view that will hold gradient
         gradientView = UIView(frame: legendTableView!.frame)
         barChartPageView?.addSubview(gradientView!)
-        gradientView!.userInteractionEnabled = false
-        gradientView?.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+        gradientView!.isUserInteractionEnabled = false
+        gradientView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         //Setup gradient mask
         maskLayer.frame = gradientView!.bounds
         maskLayer.startPoint = CGPoint(x: 0.0, y: 0.85)
         maskLayer.endPoint = CGPoint(x: 0.0, y: 1.0)
-        let gradientColors = [UIColor.whiteColor().colorWithAlphaComponent(0.0).CGColor, UIColor.whiteColor().colorWithAlphaComponent(1.0).CGColor]
+        let gradientColors = [UIColor.white.withAlphaComponent(0.0).cgColor, UIColor.white.withAlphaComponent(1.0).cgColor]
         maskLayer.colors = gradientColors
         gradientView!.layer.addSublayer(maskLayer)
         
@@ -443,40 +452,53 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
 
     //MARK: - <RCChartViewDataSource>
     
-    internal func plotWithIndex(index: Int, forChartView chartView: RCChartView!) -> RCChartViewPlot! {
-        let width = CGRectGetWidth(chartView.frame) / CGFloat(totalTitles!.count) - 5.0
-        let plot = RCChartViewPlot(plotAtIndex: index, forChartView: chartView, width: width)
-        plot.layer.cornerRadius = 7.5
+    public func plot(with index: Int, for chartView: RCChartView!) -> RCChartViewPlot! {
+        let width = chartView.frame.width / CGFloat(totalTitles!.count) - 5.0
+        let plot = RCChartViewPlot(plotAt: index, for: chartView, width: width)
+        plot?.layer.cornerRadius = 7.5
         if chartColors!.count > index {
-            plot.backgroundColor = chartColors![index]
+            plot?.backgroundColor = chartColors![index]
             
         } else {
-            plot.backgroundColor = chartColors![index % chartColors!.count]
+            plot?.backgroundColor = chartColors![index % chartColors!.count]
         }
         
         return plot
     }
     
-    internal func chartView(chartView: RCChartView!, pointForPlotWithIndex index: Int) -> CGPoint {
+    public func numberOfPlots(in chartView: RCChartView!) -> Int {
+        return (totalValues!.count)
+    }
+    
+
+//
+//    internal func plotWithIndex(index: Int, forChartView chartView: RCChartView!) -> RCChartViewPlot! {
+//        
+//    }
+//    internal func numberOfPlotsInChartView(chartView: RCChartView!) -> Int {
+//        return (totalValues!.count)
+//    }
+    
+    internal func chartView(_ chartView: RCChartView!, pointForPlotWith index: Int) -> CGPoint {
         
         
         //Totals page bar chart
-        if (totalValues?.count > index) {
-            return CGPointMake(CGFloat(index), totalValues![index])
+        if ((totalValues?.count)! > index) {
+            return CGPoint(x: CGFloat(index), y: totalValues![index])
         } else {
-            return CGPointMake(CGFloat(index), 0.0)
+            return CGPoint(x: CGFloat(index), y: 0.0)
         }
     }
     
-    internal func chartViewMaxX(chartView: RCChartView!) -> CGFloat {
+    internal func chartViewMaxX(_ chartView: RCChartView!) -> CGFloat {
         //Return the number of x values
         return CGFloat((totalValues?.count)!)
     }
     
-    internal func chartViewMaxY(chartView: RCChartView!) -> CGFloat {
+    internal func chartViewMaxY(_ chartView: RCChartView!) -> CGFloat {
         //Return the largest value
         
-        let sortedValues = (totalValues! as NSArray).sort { (first, second) -> Bool in
+        let sortedValues = (totalValues! as NSArray).sorted { (first, second) -> Bool in
             if first as! CGFloat > second as! CGFloat {
                 return true
             } else {
@@ -486,13 +508,10 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         return sortedValues.first as! CGFloat
     }
     
-    internal func numberOfPlotsInChartView(chartView: RCChartView!) -> Int {
-        return (totalValues!.count)
-    }
     
-    internal func titleForPlotAtIndex(index: Int) -> String! {
+    internal func titleForPlot(at index: Int) -> String! {
         //Use the title labels to show the values for the chart
-        if totalTitles?.count > index {
+        if (totalTitles?.count)! > index {
             return totalTitles![index]
             
         }
@@ -501,10 +520,10 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     
     //MARK: - <UIScrollViewDelegate>
     
-    func scrollViewDidScroll(scrollView: UIScrollView) {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         if scrollView == pageScrollView! {
-            let pageNumberIndicator = scrollView.contentOffset.x / CGRectGetWidth(pageScrollView!.frame)
+            let pageNumberIndicator = scrollView.contentOffset.x / pageScrollView!.frame.width
             
             if pageNumberIndicator == 0 {
                 pageControl!.currentPage = 0
@@ -522,7 +541,8 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     
     //MARK: - <UITableViewDataSource>
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         var reusableCellID = ""
         var cellMainText = ""
         var cellDetailText = ""
@@ -533,20 +553,20 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             
             reusableCellID = "legendCellIdentifier"
             
-            tableViewCell = tableView.dequeueReusableCellWithIdentifier(reusableCellID)
+            tableViewCell = tableView.dequeueReusableCell(withIdentifier: reusableCellID)
             if tableViewCell == nil {
-                tableViewCell = UITableViewCell(style: .Value2, reuseIdentifier: reusableCellID)
+                tableViewCell = UITableViewCell(style: .value2, reuseIdentifier: reusableCellID)
             }
             
-            tableViewCell!.selectionStyle = .None
+            tableViewCell!.selectionStyle = .none
             
-            tableViewCell?.detailTextLabel?.textAlignment = NSTextAlignment.Right
-            tableViewCell?.detailTextLabel?.font = UIFont.systemFontOfSize(15.0)
+            tableViewCell?.detailTextLabel?.textAlignment = NSTextAlignment.right
+            tableViewCell?.detailTextLabel?.font = UIFont.systemFont(ofSize: 15.0)
             tableViewCell?.detailTextLabel?.numberOfLines = 0
-            tableViewCell?.detailTextLabel?.lineBreakMode = .ByWordWrapping
-            let totalVal = NSNumberFormatter.localizedStringFromNumber((totalValues![indexPath.row] as NSNumber), numberStyle: NSNumberFormatterStyle.CurrencyStyle)
-
-            if totalTitles?.count > indexPath.row && totalValues?.count > indexPath.row {
+            tableViewCell?.detailTextLabel?.lineBreakMode = .byWordWrapping
+            let totalVal = NumberFormatter.localizedString(from: (totalValues![indexPath.row] as NSNumber), number: NumberFormatter.Style.currency)
+            
+            if (totalTitles?.count)! > indexPath.row && (totalValues?.count)! > indexPath.row {
                 tableViewCell!.detailTextLabel?.text = " \(totalTitles![indexPath.row]): \(totalVal)"
             }
             
@@ -561,7 +581,7 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
                 }
             }
             if colorExists == false {
-                colorView = UIView(frame: CGRectMake(0.0, 12.5, 20.0, 20.0))
+                colorView = UIView(frame: CGRect(x: 0.0, y: 12.5, width: 20.0, height: 20.0))
                 colorView.layer.cornerRadius = 10.0
                 colorView.layer.masksToBounds = true
                 colorView.layer.allowsEdgeAntialiasing = true
@@ -572,7 +592,7 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             if chartColors!.count > indexPath.row {
                 colorView.backgroundColor = chartColors![indexPath.row]
             } else {
-                if chartColors?.count > 0 {
+                if (chartColors?.count)! > 0 {
                     colorView.backgroundColor = chartColors![indexPath.row % chartColors!.count]
                 }
             }
@@ -583,55 +603,57 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             
             reusableCellID = "propertiesCellIdentifier"
             
-            if propertyTitles?.count > indexPath.row {
+            if (propertyTitles?.count)! > indexPath.row {
                 cellMainText = "\(propertyTitles![indexPath.row])"
             }
             
-            if propertyTitles?.count > indexPath.row {
+            if (propertyTitles?.count)! > indexPath.row {
                 cellDetailText = "\(propertyValues![indexPath.row])"
             }
             
-            tableViewCell = tableView.dequeueReusableCellWithIdentifier(reusableCellID)
+            tableViewCell = tableView.dequeueReusableCell(withIdentifier: reusableCellID)
             if tableViewCell == nil {
-                tableViewCell = UITableViewCell(style: .Value1, reuseIdentifier: reusableCellID)
+                tableViewCell = UITableViewCell(style: .value1, reuseIdentifier: reusableCellID)
             }
             
-            tableViewCell!.selectionStyle = .Blue
+            tableViewCell!.selectionStyle = .blue
             tableViewCell!.textLabel?.text = cellMainText
             tableViewCell!.detailTextLabel?.text = cellDetailText
             
         } else if tableView == linksTableView {
             //Cell for linksTableView
-
+            
             reusableCellID = "linkTableCellIdentifier"
             
-            if linkTitles?.count > indexPath.row {
+            if (linkTitles?.count)! > indexPath.row {
                 cellMainText = "\(linkTitles![indexPath.row])"
             }
             
-            if linkDescriptions?.count > indexPath.row {
+            if (linkDescriptions?.count)! > indexPath.row {
                 cellDetailText = "\(linkDescriptions![indexPath.row])"
             }
             
-            tableViewCell = tableView.dequeueReusableCellWithIdentifier(reusableCellID)
+            tableViewCell = tableView.dequeueReusableCell(withIdentifier: reusableCellID)
             if tableViewCell == nil {
-                tableViewCell = UITableViewCell(style: .Value1, reuseIdentifier: reusableCellID)
+                tableViewCell = UITableViewCell(style: .value1, reuseIdentifier: reusableCellID)
             }
             
-            tableViewCell!.selectionStyle = .Blue
+            tableViewCell!.selectionStyle = .blue
             tableViewCell!.textLabel?.text = cellMainText
             tableViewCell!.detailTextLabel?.text = cellDetailText
             
         }
         
         return tableViewCell!
+
     }
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == legendTableView {
             if totalTitles != nil {
                 return (totalTitles!.count)
@@ -660,7 +682,7 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     
     //MARK: - <UITableViewDelegate>
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == legendTableView {
             print("ResrouceViewController - Tapped on a cell at row \(indexPath.row) in legendTableView")
             
@@ -674,9 +696,20 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     
     //MARK: - <UICollectionViewDataSource>
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let source = linksDataSource {
-            return source.resourceViewController(self, numberOfRowsForLinkSection: section)
+            return source.resourceViewController(viewController: self, numberOfRowsForLinkSection: section)
+            
+        } else {
+            return 0
+            
+        }
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        
+        if let source = linksDataSource {
+            return source.resourceViewControllerNumberOfLinkSections(viewController: self)
             
         } else {
             return 0
@@ -686,7 +719,7 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
         if let source = linksDataSource {
-            return source.resourceViewControllerNumberOfLinkSections(self)
+            return source.resourceViewControllerNumberOfLinkSections(viewController: self)
             
         } else {
             return 0
@@ -694,12 +727,12 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
         }
     }
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let source = linksDataSource {
-            return source.resourceViewController(self, collectionView: collectionView, cellForLinkAtPath: indexPath)
+            return source.resourceViewController(viewController: self, collectionView: collectionView, cellForLinkAtPath: indexPath as NSIndexPath)
             
         } else {
-            return collectionView.dequeueReusableCellWithReuseIdentifier("LinkCell", forIndexPath: indexPath)
+            return collectionView.dequeueReusableCell(withReuseIdentifier: "LinkCell", for: indexPath as IndexPath)
             
         }
     }
