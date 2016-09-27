@@ -9,9 +9,12 @@
 import UIKit
 
 protocol ResourceLinksDataSource {
+    //Links View
     func resourceViewControllerNumberOfLinkSections(viewController: ResourceViewController) -> Int
     func resourceViewController(viewController: ResourceViewController, numberOfRowsForLinkSection: Int) -> Int
-    func resourceViewController(viewController: ResourceViewController, collectionView: UICollectionView, cellForLinkAtPath indexPath: NSIndexPath) -> UICollectionViewCell
+    func resourceViewController(viewController: ResourceViewController, collectionView: UICollectionView, cellForLinkAtPath indexPath: IndexPath) -> UICollectionViewCell
+    func resourceViewController(viewController: ResourceViewController, tableView: UITableView, cellForLinkAtPath indexPath: IndexPath) -> UITableViewCell
+    func resourceViewController(viewController: ResourceViewController, didSelectPath indexPath: IndexPath)
 }
 
 class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegate, UITableViewDataSource, RCChartViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate {
@@ -178,6 +181,35 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             pageControl?.numberOfPages = 0
         }
         
+    }
+    
+    func setup(totals: [String: AnyObject]?, properties: [String: AnyObject]?, linksDelegate: ResourceLinksDataSource, colors: [UIColor]?) {
+        //Setup Totals bar chart page
+        if totals != nil {
+            self.setupTotalsPage(totals: totals!, colors: colors)
+        }
+        
+        //Setup properties table
+        if properties != nil {
+            self.setupPropertiesPage(properties: properties!)
+        }
+        
+        //Setup links page
+        self.setupLinksPage(links: [String: AnyObject]())
+        
+        var barHeight: CGFloat = 0.0
+        if let bar = self.navigationController?.navigationBar {
+            barHeight = barHeight + bar.frame.height
+        }
+        barHeight = barHeight + UIApplication.shared.statusBarFrame.size.height
+        pageScrollView!.contentSize = CGSize(width: (pageScrollView?.frame.width)! * CGFloat(pages.count), height: (pageScrollView?.frame.height)!-barHeight)
+        
+        if pages.count > 1 {
+            pageControl?.numberOfPages = pages.count
+            pageControl?.currentPage = 0
+        } else {
+            pageControl?.numberOfPages = 0
+        }
     }
     
     func toggleLinksDisplay() {
@@ -622,8 +654,11 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             
         } else if tableView == linksTableView {
             //Cell for linksTableView
+            if let source = linksDataSource {
+                return source.resourceViewController(viewController: self, tableView: tableView, cellForLinkAtPath: indexPath)
+            }
             
-            reusableCellID = "linkTableCellIdentifier"
+            reusableCellID = "LinkTableCell"
             
             if (linkTitles?.count)! > indexPath.row {
                 cellMainText = "\(linkTitles![indexPath.row])"
@@ -669,8 +704,12 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             }
             
         } else if tableView == linksTableView {
-            if linkTitles != nil {
+            if let source = linksDataSource {
+                return source.resourceViewController(viewController: self, numberOfRowsForLinkSection: section)
+                
+            } else if linkTitles != nil {
                 return (linkTitles!.count)
+                
             } else {
                 return 0
             }
@@ -690,6 +729,9 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
             print("ResrouceViewController - Tapped on a cell at row \(indexPath.row) in propertiesTableView")
             
         } else if tableView == linksTableView {
+            if let source = linksDataSource {
+                source.resourceViewController(viewController: self, didSelectPath: indexPath)
+            }
             print("ResrouceViewController - Tapped on a cell at row \(indexPath.row) in linksTableView")
         }
     }
@@ -729,11 +771,17 @@ class ResourceViewController: UIViewController, UIScrollViewDelegate, UITableVie
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let source = linksDataSource {
-            return source.resourceViewController(viewController: self, collectionView: collectionView, cellForLinkAtPath: indexPath as NSIndexPath)
+            return source.resourceViewController(viewController: self, collectionView: collectionView, cellForLinkAtPath: indexPath)
             
         } else {
-            return collectionView.dequeueReusableCell(withReuseIdentifier: "LinkCell", for: indexPath as IndexPath)
+            return collectionView.dequeueReusableCell(withReuseIdentifier: "LinkCell", for: indexPath)
             
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if let source = linksDataSource {
+            return source.resourceViewController(viewController: self, didSelectPath: indexPath)
         }
     }
     

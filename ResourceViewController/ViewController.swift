@@ -52,12 +52,24 @@ class ViewController: UIViewController, ResourceLinksDataSource {
         return 5
     }
     
-    func resourceViewController(viewController: ResourceViewController, collectionView: UICollectionView, cellForLinkAtPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "LinkCell", for: indexPath as IndexPath)
+    func resourceViewController(viewController: ResourceViewController, collectionView: UICollectionView, cellForLinkAtPath indexPath: IndexPath) ->
+        UICollectionViewCell {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "LinkCell", for: indexPath as IndexPath)
+            cell.backgroundColor = UIColor.lightGray
+            
+            return cell
+    }
+    
+    func resourceViewController(viewController: ResourceViewController, tableView: UITableView, cellForLinkAtPath indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell(style: .default, reuseIdentifier: "LinkTableCell")
         cell.backgroundColor = UIColor.lightGray
-        
         return cell
     }
+    
+    func resourceViewController(viewController: ResourceViewController, didSelectPath indexPath: IndexPath) {
+        print("Did select at path \(indexPath)")
+    }
+    
 }
 
 
